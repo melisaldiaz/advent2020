@@ -33,11 +33,8 @@ isValidNew (firstPos, secondPos, char, password) =
         where
           f :: Int -> (Int, Char) -> Int
           f acc (pos, letter) =
-            if pos == firstPos || pos == secondPos
-              then
-                if letter == char
-                  then acc + 1
-                  else acc
+            if (pos == firstPos || pos == secondPos) && letter == char
+              then acc + 1
               else acc
    in matches == 1
 
