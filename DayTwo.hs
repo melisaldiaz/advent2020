@@ -1,41 +1,39 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+  
 module DayTwo where
 
 import Data.List (foldl', zip)
 
-validPasswords :: ((Int, Int, Char, String) -> Bool) -> [(Int, Int, Char, String)] -> Int
-validPasswords pred input =
+countValid :: forall a. (a -> Bool) -> [a] -> Int
+countValid predicate input =
   foldl' f 0 input
   where
-    f :: Int -> (Int, Int, Char, String) -> Int
-    f acc pass =
-      if pred pass then acc + 1 else acc
+    f :: Int -> a -> Int
+    f acc a
+      | predicate a = acc + 1
+      | otherwise = acc
 
 -- Determine whether a character is used between a given minimun
 -- and maximum amount of times provided.
-isValid :: (Int, Int, Char, String) -> Bool
-isValid (mn, mx, char, password) =
+firstPolicy :: (Int, Int, Char, String) -> Bool
+firstPolicy (mn, mx, char, password) =
   let matches :: Int
-      matches = foldl' f 0 password
-        where
-          f :: Int -> Char -> Int
-          f acc current =
-            if current == char then acc + 1 else acc
+      matches = countValid (\current -> current == char) password
    in matches >= mn && matches <= mx
 
 -- Determine whether a character is used once at one of the
 -- two positions given.
-isValidNew :: (Int, Int, Char, String) -> Bool
-isValidNew (firstPos, secondPos, char, password) =
+secondPolicy :: (Int, Int, Char, String) -> Bool
+secondPolicy (firstPos, secondPos, char, password) =
   let indexedPassword :: [(Int, Char)]
       indexedPassword = zip [1 ..] password
       matches :: Int
-      matches = foldl' f 0 indexedPassword
-        where
-          f :: Int -> (Int, Char) -> Int
-          f acc (pos, letter) =
-            if (pos == firstPos || pos == secondPos) && letter == char
-              then acc + 1
-              else acc
+      matches =
+        countValid
+          ( \(pos, letter) ->
+              (pos == firstPos || pos == secondPos) && letter == char
+          )
+          indexedPassword
    in matches == 1
 
 input :: [(Int, Int, Char, String)]
