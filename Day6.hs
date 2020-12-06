@@ -2,6 +2,7 @@
 
 module DaySix where
 
+import Data.Foldable (foldl')
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Text (Text)
@@ -22,9 +23,13 @@ firstAnswer =
 
 ------ Second part
 
-countRepeated :: [[[Char]]] -> Int
-countRepeated x =
-  sum $ fmap Set.size $ fmap toIntersection x
+countRepeated :: [[String]] -> Int
+countRepeated xss =
+  sum $ fmap (Set.size . intersections . fmap Set.fromList) xss
+
+intersections :: Ord a => [Set a] -> Set a
+intersections (s : rest) = foldl' Set.intersection s rest
+intersections [] = Set.empty
 
 toIntersection :: [[Char]] -> Set Char
 toIntersection [] = Set.empty
